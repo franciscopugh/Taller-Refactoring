@@ -1,18 +1,7 @@
+const createStatementData = require('./createStatementData');
+
 module.exports = statement = function (invoice, plays) {
-      const statementData = {};
-      statementData.customer = invoice.customer;
-      statementData.performances = invoice.performances.map(enrichPerfomance);   //Loop sobre todas las perfomances
-      return renderPlainText(statementData, plays);
-
-      function enrichPerfomance(aPerfomance) {
-         const result = Object.assign({}, aPerfomance);     //Autocopia el arreglo
-         result.play = playFor(result);              
-         return result;
-      }
-
-      function playFor(aPerformance) {
-         return plays[aPerformance.playID];
-      }      
+      return renderPlainText(createStatementData(invoice, plays));      
 }
 
 function renderPlainText(data) {
@@ -27,21 +16,11 @@ function renderPlainText(data) {
    return result;
 
    function totalVolumeCredits() {
-      let result = 0;
-
-      for (let perf of data.performances) {
-         result += volumeCreditsFor(perf);
-      }
-      return result;
+      return data.performances.reduce((a,b)=>a+volumeCreditsFor(b),0);
    }
 
    function totalAmount() {
-      let result = 0;
-      
-      for (let perf of data.performances) {
-         result += amountFor(perf);
-      }
-      return result;
+      return data.performances.reduce((a,b)=>a+amountFor(b),0);
    }
 
    function usd(aNumber) {
